@@ -1,6 +1,6 @@
 var SS = SpreadsheetApp.openById('1wmysnUqHb3umEI33FCf6IpF9pqWWBv-jqy-DTqKr_eQ');
 var timezone = "europe/istanbul"
-var hours = 0
+var hours = 3
 var str = "";
 
 
@@ -13,7 +13,7 @@ function doPost(e) {
     parsedData = JSON.parse(e.postData.contents);
   } 
   catch(f){
-    return ContentService.createTextOutput("Error in parsing request body: " + f.message);
+    return ContentService.createTextOutput("veri iletimi başarısız: " + f.message);
   }
    
   if (parsedData !== undefined){
@@ -23,54 +23,58 @@ function doPost(e) {
     }
     
     var sheet = SS.getSheetByName(parsedData.sheet_name);
-    var dataArr = parsedData.values.split(","); 
-     
+    var dataArr = parsedData.values.split(",");
+         
+    
     var Curr_Date = new Date(new Date().setHours(new Date().getHours() + hours));
     var Curr_Time = Utilities.formatDate(Curr_Date, timezone, 'HH:mm:ss');
 
-    var value0 = dataArr [0]; 
-    var value1 = dataArr [1];
-    var value2 = dataArr [2]; 
-    var value3 = dataArr [3]; 
-    var value4 = dataArr [4]; 
+    var value0 = dataArr [0]; // öğrenci numarası
+    var value1 = dataArr [1]; // isim soyisim 
+    var value2 = dataArr [2]; // üniversite
+    var value3 = dataArr [3]; // fakülte
+    var value4 = dataArr [4]; // bölüm
   
-    switch (parsedData.command) 
-    {  
+    switch (parsedData.command) {
+      
       case "insert_row":
+         
          sheet.insertRows(2); 
          
-         sheet.getRange('A2').setValue(Curr_Date);
-         sheet.getRange('B2').setValue(Curr_Time);
-         sheet.getRange('C2').setValue(value0);
-         sheet.getRange('D2').setValue(value1);
-         sheet.getRange('E2').setValue(value2);
-         sheet.getRange('F2').setValue(value3);
-         sheet.getRange('G2').setValue(value4);
+         sheet.getRange('A2').setValue(Curr_Date); 
+         sheet.getRange('B2').setValue(Curr_Time); 
+         sheet.getRange('C2').setValue(value0);   
+         sheet.getRange('D2').setValue(value1);   
+         sheet.getRange('E2').setValue(value2);  
+         sheet.getRange('F2').setValue(value3);   
+         sheet.getRange('G2').setValue(value4);  
          
-         str = "Success";
+         str = "başarılı";
          SpreadsheetApp.flush();
          break;
          
       case "append_row":
+         
          var publish_array = new Array(); 
          
          publish_array [0] = date_now; 
-         publish_array [1] = time_now;
-         publish_array [2] = value0;
-         publish_array [3] = value1;
-         publish_array [4] = value2;
-
-         sheet.appendRow(publish_array);
+         publish_array [1] = time_now; 
+         publish_array [2] = value0;   
+         publish_array [3] = value1;  
+         publish_array [4] = value2;  
          
-         str = "Success";
+         sheet.appendRow(publish_array); 
+         
+         str = "başarılı"; 
          SpreadsheetApp.flush();
          break;     
  
     }
+    
     return ContentService.createTextOutput(str);
   }
   
   else {
-    return ContentService.createTextOutput("Error! Request body empty or in incorrect format.");
+    return ContentService.createTextOutput("hata bodu boş geldi ya da tanımlanamadı.");
   }
 }
