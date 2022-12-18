@@ -4,9 +4,21 @@
 #include <MFRC522.h>
 #include <HTTPSRedirect.h>
 
+/*
+#include <WiFiClientSecure.h>
+#include <UniversalTelegramBot.h>
+
+#define BOTtoken "5958646535:AAEaQP7ewq7qkzQza8Hgybuxasd1454Pow"
+#define CHAT_ID "115321816"
+
+X509List cert(TELEGRAM_CERTIFICATE_ROOT);
+WiFiClientSecure client;
+UniversalTelegramBot bot(BOTtoken, client);
+ bot.sendMessage(CHAT_ID, "asdasd", "");
+*/
 
 // Google Script deploy kimliği:
-const char *GScriptId = "AKfycbyqQOre8jZbxRNB6tQLhefHS6rL98v2Cfq2Uk0SEZXH5ffxy1Ied22ubzr6sbp0DUnHRg";
+const char *GScriptId = "AKfycbwvqbxyrVX3E2MBs5sy6Rxqnmh7DsOm_uHbDK4CTzOqq8dubOmuKpR_zxLRm3MQ7SSB1A";
 
 // wifi bilgileri:
 const char* ssid     = "FiberHGW_ZT2Y7A_2.4GHz";
@@ -15,7 +27,7 @@ const char* password = "pjCeU4xeTa";
 String payload_base =  "{\"command\": \"insert_row\", \"sheet_name\": \"Sayfa1\", \"values\": ";
 String payload = "";
 
-// Google Sheets setup (do not edit)
+// Google Sheets ayarları
 const char* host        = "script.google.com";
 const int   httpsPort   = 443;
 const char* fingerprint = "";
@@ -28,8 +40,8 @@ String student_id;
 int blocks[] = {4,5,6,8,9};
 #define total_blocks  (sizeof(blocks) / sizeof(blocks[0]))
 
-#define RST_PIN  D3  //D3
-#define SS_PIN   D4  //D4
+#define RST_PIN  D3  
+#define SS_PIN   D4
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 MFRC522::MIFARE_Key key;  
 MFRC522::StatusCode status;
@@ -39,38 +51,51 @@ int blockNum = 2;
 byte bufferLen = 18;
 byte readBlockData[18];
 
+int red = D0;
+int green = D1;
+int blue = D2;
+
+
 void setup()
 {
   /*seri haberleşme*/
-  Serial.begin(9600);        
+  Serial.begin(9600);      
   delay(10);
   Serial.println('\n');
   
+  pinMode(red, OUTPUT);
+  pinMode(green, OUTPUT);
+  pinMode(blue, OUTPUT);
+  
   SPI.begin();
   
-  // Connect to WiFi
+  // internete bağlanma
   WiFi.begin(ssid, password);             
   Serial.print("Connecting to ");
-  Serial.print(ssid); Serial.println(" ...");
+  Serial.print(ssid); 
+  Serial.println(" ...");
   
   while (WiFi.status() != WL_CONNECTED)
   {
     delay(1000);
     Serial.print(".");
+    r();
   }
   Serial.println('\n');
-  Serial.println("Connection established!");  
+  Serial.println("internete bağlantı sağlandı!");  
   Serial.print("IP address:\t");
   Serial.println(WiFi.localIP());
+ 
   
-  // Use HTTPSRedirect class to create a new TLS connection
+  
+  // HTTPSRedirect sınıfının tanımlanması ve kullanımı
   client = new HTTPSRedirect(httpsPort);
   client->setInsecure();
   client->setPrintResponseBody(true);
   client->setContentTypeHeader("application/json");
   delay(5000);
   
-  Serial.print("Connecting to ");
+  Serial.print("bağlanıyor.. ");
   Serial.println(host);
   
   bool flag = false;
@@ -80,30 +105,34 @@ void setup()
     if (retval == 1)
     {
       flag = true;
-      String msg = "Connected. OK";
+      String msg = "bağlandı";
       Serial.println(msg);
-      
       break;
     }
     else
     {
-      Serial.println("Connection failed. Retrying...");
+      Serial.println("bağlantı başarısız, tekrar deneniyor...");
+      r();
     }
   }
   if (!flag)
   {
-    
-    Serial.print("Could not connect to server: ");
+    r();
+    Serial.print("bağlanamadı: ");
     Serial.println(host);
     delay(5000);
     return;
   }
   delete client;    
   client = nullptr;
+  
 }
 
 void loop() 
 {
+  char inChar;
+  b();
+  
   static bool flag = false;
   if (!flag)
   {
@@ -122,7 +151,8 @@ void loop()
   }
   else
   {
-    Serial.println("Error creating client object!");
+    Serial.println("https redirect client hata");
+    r();
   }
  
   
@@ -149,6 +179,7 @@ void loop()
       data.trim();
       student_id = data;
       values = "\"" + data + ",";
+      
     }
     else if(i == total_blocks-1)
     {
@@ -168,18 +199,19 @@ void loop()
   // values = "\"" + value0 + "," + value1 + "," + value2 + "\"}"
   payload = payload_base + values;
   
- 
-  
   // sheete göndeme
   Serial.println("veri gönderiliyor...");
   Serial.println(payload);
+  
+  
   if(client->POST(url, host, payload))
   { 
-      //lcd kodları olucak
+    g();
   }
   else
   {
     Serial.println("hata");
+    r();
   }   
   delay(5000);
 }
@@ -195,9 +227,10 @@ void ReadDataFromBlock(int blockNum, byte readBlockData[])
   
   if (status != MFRC522::STATUS_OK)
   {
-     Serial.print("okuma hatalı: ");
-     Serial.println(mfrc522.GetStatusCodeName(status));
-     return;
+    Serial.print("okuma hatalı: ");
+    r();
+    Serial.println(mfrc522.GetStatusCodeName(status));
+    return;
   }
   else
   {
@@ -208,6 +241,7 @@ void ReadDataFromBlock(int blockNum, byte readBlockData[])
   if (status != MFRC522::STATUS_OK) 
   {
     Serial.print("okuma hatalı: ");
+    r();
     Serial.println(mfrc522.GetStatusCodeName(status));
     return;
   }
@@ -215,6 +249,25 @@ void ReadDataFromBlock(int blockNum, byte readBlockData[])
   {
     readBlockData[16] = ' ';
     readBlockData[17] = ' ';
-    Serial.println("başarılı");  
+    Serial.println("başarılı");
+      
   }
+}
+void r(){
+  analogWrite(red,255);
+  analogWrite(green,0);
+  analogWrite(blue,0);
+  delay(100); 
+}
+void g(){
+  analogWrite(red,0);
+  analogWrite(green,255);
+  analogWrite(blue,0);
+  delay(100); 
+}
+void b(){
+  analogWrite(red,0);
+  analogWrite(green,0);
+  analogWrite(blue,255);
+  delay(100); 
 }

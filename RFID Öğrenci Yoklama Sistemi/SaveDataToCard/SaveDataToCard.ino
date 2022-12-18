@@ -18,6 +18,9 @@ byte readBlockData[18];
 
 MFRC522::StatusCode status;
 
+int red = D0;
+int green = D1;
+int blue = D2;
 
 void setup() 
 {
@@ -28,11 +31,15 @@ void setup()
   mfrc522.PCD_Init();
   Serial.println("kartı okutup işlem bitene kadar kaldırmayınız ...");
   
+  pinMode(red, OUTPUT);
+  pinMode(green, OUTPUT);
+  pinMode(blue, OUTPUT);
 }
 
 
 void loop()
 {
+  b();
   
   /* doğrulama */
   for (byte i = 0; i < 6; i++){
@@ -98,18 +105,19 @@ void WriteDataToBlock(int blockNum, byte blockData[])
 {
   Serial.println("bloklara veri yazılıyor ... ");
   Serial.println("blok numrası : "+blockNum);
-
   /* yazma erişimi için istenen veri bloğunun kimliğinin doğrulanması */
   status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, blockNum, &key, &(mfrc522.uid));
   if (status != MFRC522::STATUS_OK)
   {
     Serial.println("başarısız: ");
+    r();
     Serial.println(mfrc522.GetStatusCodeName(status));
     return;
   }
   else 
   {
     Serial.println("başarılı");
+    g();
   }
   
   /* bloka verileri yazma */
@@ -117,12 +125,14 @@ void WriteDataToBlock(int blockNum, byte blockData[])
   if (status != MFRC522::STATUS_OK)
   {
     Serial.println("başarısız: ");
+    r();
     Serial.println(mfrc522.GetStatusCodeName(status));
     return;
   }
   else
   {
     Serial.println("yazma başarılı");
+    g();
   }
 }
 
@@ -136,13 +146,15 @@ void ReadDataFromBlock(int blockNum, byte readBlockData[])
   status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, blockNum, &key, &(mfrc522.uid));
   if (status != MFRC522::STATUS_OK)
   {
-   Serial.println("başarısız: ");
-   Serial.println(mfrc522.GetStatusCodeName(status));
-   return;
+    Serial.println("başarısız: ");
+    r();
+    Serial.println(mfrc522.GetStatusCodeName(status));
+    return;
   }
   else
   {
     Serial.println("başarılı");
+    g();
   }
 
   /* bloktan veri okuma */
@@ -150,11 +162,13 @@ void ReadDataFromBlock(int blockNum, byte readBlockData[])
   if (status != MFRC522::STATUS_OK)
   {
     Serial.println("başarısız: ");
+    r();
     Serial.println(mfrc522.GetStatusCodeName(status));
     return;
   }
   else {
-    Serial.println("okuma başarılı");  
+    Serial.println("okuma başarılı");
+    g(); 
   }
 }
 
@@ -178,4 +192,23 @@ void toBlockDataArray(String str)
   if(len > 16) len = 16;
   for (byte i = 0; i < len; i++) block_data[i] = str[i];
   for (byte i = len; i < 16; i++) block_data[i] = ' ';
+}
+
+void r(){
+  analogWrite(red,255);
+  analogWrite(green,0);
+  analogWrite(blue,0);
+  delay(100); 
+}
+void g(){
+  analogWrite(red,0);
+  analogWrite(green,255);
+  analogWrite(blue,0);
+  delay(100); 
+}
+void b(){
+  analogWrite(red,0);
+  analogWrite(green,0);
+  analogWrite(blue,255);
+  delay(100); 
 }

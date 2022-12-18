@@ -1,3 +1,0 @@
-
-/* google sheep url  https://script.google.com/macros/s/AKfycbwpihWysZMDbQtQ3ANbNa5NYUoLdngVjfAIvo82nv8HvNsud-wCao3QSJy677F7fnikhA/exec */
-/* deploy ID AKfycbyqQOre8jZbxRNB6tQLhefHS6rL98v2Cfq2Uk0SEZXH5ffxy1Ied22ubzr6sbp0DUnHRg */
