@@ -21,8 +21,8 @@ UniversalTelegramBot bot(BOTtoken, client);
 const char *GScriptId = "AKfycbwvqbxyrVX3E2MBs5sy6Rxqnmh7DsOm_uHbDK4CTzOqq8dubOmuKpR_zxLRm3MQ7SSB1A";
 
 // wifi bilgileri:
-const char* ssid     = "FiberHGW_ZT2Y7A_2.4GHz";
-const char* password = "pjCeU4xeTa";
+const char* ssid     = "onur";
+const char* password = "123456789";
 
 String payload_base =  "{\"command\": \"insert_row\", \"sheet_name\": \"Sayfa1\", \"values\": ";
 String payload = "";
