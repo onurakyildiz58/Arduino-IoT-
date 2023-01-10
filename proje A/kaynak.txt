@@ -1,0 +1,8 @@
+https://medium.com/@mehyalas/arduinonun-avantajları-839002962229#:~:text=Arduino%27nun%20başlıca%20avantajları%3B&text=Çevresel%20modüllerle(Shield)%20birlikte%20devre,nazaran%20daha%20anlaşılır%20ve%20kolaydır.
+https://www.circuito.io/blog/arduino-uno-pinout/
+https://akademi.robolinkmarket.com/arduino-ile-raspberry-pi-karsilastirilmasi/
+https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf
+https://www.direnc.net/rc522-rfid-okuyucu-1356mhz
+https://docs.arduino.cc/hardware/uno-rev3
+https://bilginc.com/tr/blog/python-nedir-python-hakkinda-hersey-158/
+https://www.uzaktanegitim.com/blog/python-nedir-python-avantajlari-ve-dezavantajlari-nelerdir
