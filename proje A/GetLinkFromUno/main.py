@@ -3,7 +3,7 @@ import webbrowser
 
 
 #veriyi alma
-uno = serial.Serial("com3", 9600)
+uno = serial.Serial("com5", 9600)
 x = 0
 urlList = []
 

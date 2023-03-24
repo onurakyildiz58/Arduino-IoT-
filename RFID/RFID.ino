@@ -1,94 +1,39 @@
+
 #include <SPI.h>
 #include <MFRC522.h>
-#include <Servo.h>
-#include <Wire.h>
-#include <LiquidCrystal_I2C.h>
 
-LiquidCrystal_I2C lcd(0x27,16,2);
-int RST_PIN = 9;
-int SS_PIN = 10;
-int servoPin = 8;
+#define SS_PIN 10
+#define RST_PIN 9
+ 
+MFRC522 rfid(SS_PIN, RST_PIN); 
 
-Servo motor;                          
-MFRC522 rfid(SS_PIN, RST_PIN);
-byte IDAc[4] = {80, 0, 64, 29};
-byte IDKapa[4] = {192, 204, 186, 26};
-
-void setup()
-{
-  motor.attach(servoPin);
+void setup() { 
   Serial.begin(9600);
-  SPI.begin();
-  lcd.init();
-  lcd.backlight();
-  rfid.PCD_Init();
-  pinMode(7, OUTPUT);
+  Serial.println("asdasd");
+  SPI.begin(); // Init SPI bus
+  rfid.PCD_Init(); // Init MFRC522 
+
 }
+ 
+void loop() {
 
-void loop()
-{
-
+  // Look for new cards
   if ( ! rfid.PICC_IsNewCardPresent())
     return;
 
+  // Verify if the NUID has been readed
   if ( ! rfid.PICC_ReadCardSerial())
     return;
 
-  if (rfid.uid.uidByte[0] == IDAc[0] &&
-    rfid.uid.uidByte[1] == IDAc[1] &&
-    rfid.uid.uidByte[2] == IDAc[2] &&
-    rfid.uid.uidByte[3] == IDAc[3] )
-    {
-        lcd.clear();
-        lcd.setCursor(0,0);
-        lcd.print("kapi acik");
-        lcd.setCursor(0,1);
-        lcd.print("Hosgeldin");
-        ekranaYazdir();
-        motor.write(180);
-        digitalWrite(7, HIGH);
-        delay(100);
-        digitalWrite(7, LOW);
-        delay(100);
-        digitalWrite(7, HIGH);
-        delay(100);
-        digitalWrite(7, LOW);
-    }
-    else if(rfid.uid.uidByte[0] == IDKapa[0] &&
-    rfid.uid.uidByte[1] == IDKapa[1] &&
-    rfid.uid.uidByte[2] == IDKapa[2] &&
-    rfid.uid.uidByte[3] == IDKapa[3] )
-    {
-        lcd.clear();
-        lcd.setCursor(0,0);
-        lcd.print("kapi kapali");
-        lcd.setCursor(0,1);
-        lcd.print("gule gule");
-        motor.write(0);
-        ekranaYazdir();
-        digitalWrite(7, HIGH);
-        delay(800);
-        digitalWrite(7, LOW);
-    }
-    else{                                
-      lcd.clear();
-      lcd.setCursor(0,0);
-      lcd.print("izinsiz giris");
-      lcd.setCursor(0,1);
-      lcd.print("polisi ararim");
-      motor.write(0);
-      ekranaYazdir();
-      digitalWrite(7, HIGH);
-      delay(800);
-      digitalWrite(7, LOW);
-    }
-  rfid.PICC_HaltA();
-}
-void ekranaYazdir(){
-  Serial.print("ID Numarasi: ");
-  for(int sayac = 0; sayac < 4; sayac++){
-    Serial.print(rfid.uid.uidByte[sayac]);
-    Serial.print(" ");
+  Serial.print("uid : ");
+  String content = "";
+  byte letter;
+  for(byte i = 0; i < rfid.uid.size; i++){
+    Serial.print(rfid.uid.uidByte[i] < 0x10 ? " 0" : " ");
+    Serial.print(rfid.uid.uidByte[i], HEX);
+    content.concat(String(rfid.uid.uidByte[i] < 0x10 ? " 0" : " "));
+    content.concat(String(rfid.uid.uidByte[i], HEX));
   }
-  Serial.println("");
+  Serial.println();
+  delay(2000);
 }
