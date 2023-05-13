@@ -1,0 +1,50 @@
+var ss = SpreadsheetApp.openById('1GXxo_yqrmTlwPOMfvaAg-y_khOSvueRwLNboN6ANpGA');
+var sheet = ss.getSheetByName('Bulut Bilisim');
+
+var sheet = SpreadsheetApp.getActiveSheet();
+var dataRange = sheet.getDataRange();
+
+function doGet(e){
+  Logger.log( JSON.stringify(e) );
+  
+  if (e.parameter == 'undefined') {
+    return ContentService.createTextOutput("Received data is undefined");
+  }
+ 
+  var student_id = stripQuotes(e.parameters.data1);
+  var date       = stripQuotes(e.parameters.data2);
+
+  const hafta = searcher(date); //K1
+  const ogrenci = searcher(student_id); //A5
+
+  const finalCell = hafta.slice(0,1) + ogrenci.slice(1);
+
+  sheet.getRange(finalCell).setValue('+');
+
+  return ContentService.createTextOutput("Başarılı");
+}
+
+function searcher(value) 
+{
+  var values = dataRange.getValues();
+  
+  for (var row = 0; row < values.length; row++) {
+    for (var col = 0; col < values[0].length; col++) {
+      if (values[row][col] == value) {
+        return sheet.getRange(row + 1, col + 1).getA1Notation();
+      }
+    }
+  }
+  return "Veri bulunamadı.";
+}
+
+function stripQuotes( value ) {
+  return value.toString().replace(/^["']|['"]$/g, "");
+}
+
+
+
+
+
+
+
